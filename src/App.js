@@ -1,8 +1,24 @@
-import React from "react";
+import React, { useEffect } from "react";
 //import { ethers } from "ethers";
 import './App.css';
 
 export default function App() {
+
+  const checkWalletConnected = () => {
+    const {ethereum} = window;
+    
+    if(!ethereum){
+      console.log("Garanta que possua a Metamask instalada!");
+      return;
+    } 
+    else {
+      console.log("Temos o objeto ethereum", ethereum);
+    }
+
+    useEffect(() => {
+      checkWalletConnected();
+    }, []);
+  }
 
   const woo = () => {
     
