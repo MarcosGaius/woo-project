@@ -1,18 +1,54 @@
-import React, { useEffect } from "react";
+import React, { useEffect, useState } from "react";
 //import { ethers } from "ethers";
 import './App.css';
 
 export default function App() {
 
-  const checkWalletConnected = () => {
-    const {ethereum} = window;
+  const [currentAccount, setCurrentAccount] = useState("");
+
+  const checkWalletConnected = async () => {
+    try {
+      const {ethereum} = window;
     
-    if(!ethereum){
-      console.log("Garanta que possua a Metamask instalada!");
-      return;
-    } 
-    else {
-      console.log("Temos o objeto ethereum", ethereum);
+      if(!ethereum){
+        console.log("Garanta que possua a Metamask instalada!");
+        return;
+      } 
+      else {
+        console.log("Temos o objeto ethereum", ethereum);
+      }
+
+      const accounts = await ethereum.request({method: "eth_accounts"});
+
+      if(accounts.length !== 0){
+        const account = accounts[0];
+        console.log("Encontrada a conta autorizada: ", account);
+        setCurrentAccount(account);
+      }
+      else {
+        console.log("Nenhuma conta autorizada foi encontrada!")
+      }
+    }
+    catch(error){
+      console.log(error);
+    }
+  }
+
+  const connectWallet = async () => {
+    try {
+      const { ethereum } = window;
+
+      if(!ethereum){
+        alert("Metamask encontrada!");
+        return;
+      }
+
+      const accounts = await ethereum.request({method: "eth_requestAccounts"});
+
+      console.log("Conectado", accounts[0]);
+    }
+    catch(error){
+      console.log(error);
     }
   }
 
@@ -39,6 +75,12 @@ export default function App() {
         <button className="wooButton" onClick={woo}>
           Woooooooooo 🎉
         </button>
+
+        {!currentAccount && (
+          <button className="wooButton" onClick={connectWallet}>
+            Conectar carteira 🦊
+          </button>
+        )}
       </div>
     </div>
   );
