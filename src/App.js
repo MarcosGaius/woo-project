@@ -14,11 +14,11 @@ export default function App() {
     else {
       console.log("Temos o objeto ethereum", ethereum);
     }
-
-    useEffect(() => {
-      checkWalletConnected();
-    }, []);
   }
+
+  useEffect(() => {
+    checkWalletConnected();
+  }, []);
 
   const woo = () => {
     
