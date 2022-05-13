@@ -53,7 +53,7 @@ export default function App() {
       const accounts = await ethereum.request({method: "eth_requestAccounts"});
 
       console.log("Conectado", accounts[0]);
-      document.getElementById("metaCon").remove;
+      document.getElementById("metaCon").remove();
     }
     catch(error){
       console.log(error);
