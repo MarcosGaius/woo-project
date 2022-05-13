@@ -46,17 +46,26 @@ export default function App() {
         return;
       }
 
-      // const progBar = document.createElement("div").classList.add("progress-container");
-      // progBar.appendChild("div").classList.add("progress-bar");
-      // document.getElementsByClassName("dataContainer").insertAdjacentHTML("beforeend", progBar);
+      const dataContainer = document.querySelector(".dataContainer");
+      console.log(dataContainer);
+
+      const progContainer = document.createElement("div");
+      progContainer.classList.add("progressContainer");
+      dataContainer.appendChild(progContainer);
+
+      const progBar = document.createElement('div');
+      progBar.classList.add("progressBar");
+      progContainer.appendChild(progBar);
 
       const accounts = await ethereum.request({method: "eth_requestAccounts"});
 
       console.log("Conectado", accounts[0]);
+      progContainer.remove();
       document.getElementById("metaCon").remove();
     }
     catch(error){
       console.log(error);
+      document.querySelector(".progressContainer").remove();
     }
   }
 
@@ -116,10 +125,6 @@ export default function App() {
             Conectar carteira 🦊
           </button>
         )}
-
-        <div className="progressContainer">
-          <div className="progressBar"></div>
-        </div>
       </div>
     </div>
   );
