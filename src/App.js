@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { ethers } from "ethers";
 import './App.css';
-import abi from "utils/WavePortal.json";
+import abi from "/utils/WavePortal.json";
 
 export default function App() {
 
@@ -79,7 +79,7 @@ export default function App() {
       else {
         console.log("Objeto Ethereum não encotrado.");
       }
-      
+
     }
     catch(error){
       console.log(error);
