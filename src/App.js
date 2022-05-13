@@ -42,14 +42,18 @@ export default function App() {
       const { ethereum } = window;
 
       if(!ethereum){
-        alert("Metamask encontrada!");
+        alert("Metamask não encontrada!");
         return;
       }
+
+      // const progBar = document.createElement("div").classList.add("progress-container");
+      // progBar.appendChild("div").classList.add("progress-bar");
+      // document.getElementsByClassName("dataContainer").insertAdjacentHTML("beforeend", progBar);
 
       const accounts = await ethereum.request({method: "eth_requestAccounts"});
 
       console.log("Conectado", accounts[0]);
-      document.getElementById("metaCon").style = "display: none;"
+      document.getElementById("metaCon").remove;
     }
     catch(error){
       console.log(error);
@@ -112,6 +116,10 @@ export default function App() {
             Conectar carteira 🦊
           </button>
         )}
+
+        <div className="progressContainer">
+          <div className="progressBar"></div>
+        </div>
       </div>
     </div>
   );
