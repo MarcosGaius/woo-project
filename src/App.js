@@ -1,10 +1,13 @@
 import React, { useEffect, useState } from "react";
-//import { ethers } from "ethers";
+import { ethers } from "ethers";
 import './App.css';
+import abi from "utils/WavePortal.json";
 
 export default function App() {
 
   const [currentAccount, setCurrentAccount] = useState("");
+  const contractAddress = "0x43ce82d1D75D89f560Ea3044BB69eaaEF88Cc438";
+  const contractABI = abi.abi;
 
   const checkWalletConnected = async () => {
     try {
@@ -52,14 +55,41 @@ export default function App() {
     }
   }
 
+  const woo = async () => {
+    try {
+      const {ethereum} = window;
+
+      if(ethereum){
+        const provider = new ethers.providers.Web3Provider(ethereum);
+        const signer = provider.getSigner();
+        const wooPortalContract = new ethers.Contract(contractAddress, contractABI, signer);
+
+        let wooCount = await wooPortalContract.getTotalWoo();
+        console.log("Número de Woo's: ", wooCount.toNumber());
+
+        const wooTxn = await wooPortalContract.woo();
+        console.log("Minerando...", wooTxn.hash);
+
+        await wooTxn.wait();
+        console.log("Minerado -- ", wooTxn.hash);
+
+        wooCount = await wooPortalContract.getTotalWoo();
+        console.log("Número de Woo's: ", wooCount.toNumber());
+      }
+      else {
+        console.log("Objeto Ethereum não encotrado.");
+      }
+      
+    }
+    catch(error){
+      console.log(error);
+    }
+  }
+
   useEffect(() => {
     checkWalletConnected();
   }, []);
 
-  const woo = () => {
-    
-  }
-  
   return (
     <div className="mainContainer">
 
