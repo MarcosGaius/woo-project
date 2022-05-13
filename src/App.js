@@ -49,6 +49,7 @@ export default function App() {
       const accounts = await ethereum.request({method: "eth_requestAccounts"});
 
       console.log("Conectado", accounts[0]);
+      document.getElementById("metaCon").style = "display: none;"
     }
     catch(error){
       console.log(error);
@@ -107,7 +108,7 @@ export default function App() {
         </button>
 
         {!currentAccount && (
-          <button className="wooButton" onClick={connectWallet}>
+          <button className="wooButton" id="metaCon" onClick={connectWallet}>
             Conectar carteira 🦊
           </button>
         )}
