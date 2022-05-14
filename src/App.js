@@ -2,6 +2,7 @@ import React, { useEffect, useState } from "react";
 import { ethers } from "ethers";
 import './App.css';
 import abi from "./utils/WavePortal.json";
+import { parseUnits } from "ethers/lib/utils";
 
 export default function App() {
 
@@ -64,6 +65,7 @@ export default function App() {
       console.log("Conectado", accounts[0]);
       progContainer.remove();
       document.getElementById("metaCon").remove();
+      getAllWoo();
     }
     catch(error){
       console.log(error);
@@ -79,10 +81,10 @@ export default function App() {
         const signer = provider.getSigner();
         const wooPortalContract = new ethers.Contract(contractAddress, contractABI, signer);
 
-        const woos = wooPortalContract.getAllWoo();
+        const woos = await wooPortalContract.getAllWoo();
         const treatedWoos = [];
 
-        woos.forEach(arrElem => {
+        woos.forEach((arrElem) => {
             treatedWoos.push({
               address: arrElem.waver,
               timestamp: new Date(arrElem.timestamp * 1000),
@@ -103,6 +105,11 @@ export default function App() {
     }
   }
 
+  const showModal = () => {
+    let modal = document.getElementById('messageModal');
+    modal.style.display = "flex";
+  }
+
   const woo = async () => {
     try {
       const {ethereum} = window;
@@ -112,12 +119,12 @@ export default function App() {
         const signer = provider.getSigner();
         const wooPortalContract = new ethers.Contract(contractAddress, contractABI, signer);
 
-        //adicionar um input pra colocar o texto!
+        const messageInput = await document.getElementById('message-input').value
 
         let wooCount = await wooPortalContract.getTotalWoo();
         console.log("Número de Woo's: ", wooCount.toNumber());
 
-        const wooTxn = await wooPortalContract.woo("MENSAGEM TESTE A SER MUDADA");
+        const wooTxn = await wooPortalContract.woo(messageInput);
         console.log("Minerando...", wooTxn.hash);
 
         await wooTxn.wait();
@@ -125,6 +132,9 @@ export default function App() {
 
         wooCount = await wooPortalContract.getTotalWoo();
         console.log("Número de Woo's: ", wooCount.toNumber());
+        
+        document.getElementById('messageModal').style.display = "none";
+        getAllWoo();
       }
       else {
         console.log("Objeto Ethereum não encotrado.");
@@ -152,7 +162,7 @@ export default function App() {
         Eu sou o Marcos ou Gaius, tanto faz... Conecta aí sua carteira Ethereum Wallet e faz o Woo!
         </div>
 
-        <button className="wooButton" onClick={woo}>
+        <button className="wooButton" onClick={showModal}>
           Woooooooooo 🎉
         </button>
 
@@ -161,6 +171,18 @@ export default function App() {
             Conectar carteira 🦊
           </button>
         )}
+
+        <div className="messageModal" id="messageModal">
+          <div className="modalWrapper">
+            <div className="modalContent">
+              <p>Insira sua mensagem abaixo:
+                <span className="closeButton">&times;</span>
+              </p>
+              <input type="text" id="message-input" name="message-input" placeholder="Um link, uma homenagem, uma mensagem?"></input>
+              <button onClick={woo}>Enviar</button>
+            </div>
+          </div>
+        </div>
 
         {allWoo.map((woo, i) => {
           return (
