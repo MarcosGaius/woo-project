@@ -6,7 +6,8 @@ import abi from "./utils/WavePortal.json";
 export default function App() {
 
   const [currentAccount, setCurrentAccount] = useState("");
-  const contractAddress = "0x43ce82d1D75D89f560Ea3044BB69eaaEF88Cc438";
+  const [allWoo, setAllWoo] = useState([]);
+  const contractAddress = "0x64cf7F997Fd0eDda64bBb30c8a8Bc0461923FC59";
   const contractABI = abi.abi;
 
   const checkWalletConnected = async () => {
@@ -27,6 +28,7 @@ export default function App() {
         const account = accounts[0];
         console.log("Encontrada a conta autorizada: ", account);
         setCurrentAccount(account);
+        getAllWoo();
       }
       else {
         console.log("Nenhuma conta autorizada foi encontrada!")
@@ -69,6 +71,38 @@ export default function App() {
     }
   }
 
+  const getAllWoo = async () => {
+    try {
+      const { ethereum } = window;
+      if(ethereum){
+        const provider = new ethers.providers.Web3Provider(ethereum);
+        const signer = provider.getSigner();
+        const wooPortalContract = new ethers.Contract(contractAddress, contractABI, signer);
+
+        const woos = wooPortalContract.getAllWoo();
+        const treatedWoos = [];
+
+        woos.forEach(arrElem => {
+            treatedWoos.push({
+              address: arrElem.waver,
+              timestamp: new Date(arrElem.timestamp * 1000),
+              message: arrElem.message
+            });
+        });
+
+        setAllWoo(treatedWoos);
+        console.log(treatedWoos);
+      }
+      else {
+        console.log("O objeto ethereum não existe!");
+      }
+
+    }
+    catch(error){
+      console.error(error);
+    }
+  }
+
   const woo = async () => {
     try {
       const {ethereum} = window;
@@ -78,10 +112,12 @@ export default function App() {
         const signer = provider.getSigner();
         const wooPortalContract = new ethers.Contract(contractAddress, contractABI, signer);
 
+        //adicionar um input pra colocar o texto!
+
         let wooCount = await wooPortalContract.getTotalWoo();
         console.log("Número de Woo's: ", wooCount.toNumber());
 
-        const wooTxn = await wooPortalContract.woo();
+        const wooTxn = await wooPortalContract.woo("MENSAGEM TESTE A SER MUDADA");
         console.log("Minerando...", wooTxn.hash);
 
         await wooTxn.wait();
@@ -125,6 +161,16 @@ export default function App() {
             Conectar carteira 🦊
           </button>
         )}
+
+        {allWoo.map((woo, i) => {
+          return (
+            <div key={i} style={{ backgroundColor: "OldLace", marginTop: "16px", padding: "8px" }}>
+              <div>Endereço: {woo.address}</div>
+              <div>Data/Horário: {woo.timestamp.toString()}</div>
+              <div>Mensagem: {woo.message}</div>
+            </div>
+          )
+        })};
       </div>
     </div>
   );
