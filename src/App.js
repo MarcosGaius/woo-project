@@ -66,6 +66,7 @@ export default function App() {
       progContainer.remove();
       document.getElementById("metaCon").remove();
       getAllWoo();
+      setConnected(accounts[0]);
     }
     catch(error){
       console.log(error);
@@ -110,6 +111,11 @@ export default function App() {
     modal.style.display = "flex";
   }
 
+  const closeModal = () => {
+    let modal = document.getElementById('messageModal');
+    modal.style.display = "none";
+  }
+
   const woo = async () => {
     try {
       const {ethereum} = window;
@@ -124,7 +130,7 @@ export default function App() {
         let wooCount = await wooPortalContract.getTotalWoo();
         console.log("Número de Woo's: ", wooCount.toNumber());
 
-        const wooTxn = await wooPortalContract.woo(messageInput);
+        const wooTxn = await wooPortalContract.woo(messageInput, {gasLimit: 300000});
         console.log("Minerando...", wooTxn.hash);
 
         await wooTxn.wait();
@@ -148,6 +154,34 @@ export default function App() {
 
   useEffect(() => {
     checkWalletConnected();
+    
+    let wooPortalContract;
+ 
+    const onNewWoo = (sender, timestamp, message) => {
+      console.log("NovoWoo", sender, timestamp, message);
+      setAllWoo(prevState => [
+        ...prevState,
+        {
+          address: sender,
+          timestamp: new Date(timestamp * 1000),
+          message: message,
+        },
+      ]);
+    };
+
+    if(window.ethereum){
+      const provider = new ethers.providers.Web3Provider(window.ethereum);
+      const signer = provider.getSigner();
+
+      wooPortalContract = new ethers.Contract(contractAddress, contractABI, signer);
+      wooPortalContract.on("NovoWoo", onNewWoo);
+    }
+
+    return () => {
+      if(wooPortalContract){
+        wooPortalContract.off("NovoWoo", onNewWoo);
+      }
+    }
   }, []);
 
   return (
@@ -163,7 +197,7 @@ export default function App() {
         </div>
 
         <button className="wooButton" onClick={showModal}>
-          Woooooooooo 🎉
+        Woooooooooo 🎉
         </button>
 
         {!currentAccount && (
@@ -176,7 +210,7 @@ export default function App() {
           <div className="modalWrapper">
             <div className="modalContent">
               <p>Insira sua mensagem abaixo:
-                <span className="closeButton">&times;</span>
+                <span className="closeButton" onClick={closeModal}>&times;</span>
               </p>
               <input type="text" id="message-input" name="message-input" placeholder="Um link, uma homenagem, uma mensagem?"></input>
               <button onClick={woo}>Enviar</button>
@@ -184,15 +218,18 @@ export default function App() {
           </div>
         </div>
 
-        {allWoo.map((woo, i) => {
-          return (
-            <div key={i} style={{ backgroundColor: "OldLace", marginTop: "16px", padding: "8px" }}>
-              <div>Endereço: {woo.address}</div>
-              <div>Data/Horário: {woo.timestamp.toString()}</div>
-              <div>Mensagem: {woo.message}</div>
-            </div>
-          )
-        })};
+        <div className="messageContainer">
+          {allWoo.map((woo, i) => {
+            return (
+              <div key={i} class="wooMessage">
+                <div><strong>Endereço:</strong> {woo.address}</div>
+                <div><strong>Data/Horário:</strong> {woo.timestamp.toString()}</div>
+                <div><strong>Mensagem:</strong> {woo.message}</div>
+                <button key={i}>Woo Back</button>
+              </div>
+            )
+          })};
+        </div>
       </div>
     </div>
   );

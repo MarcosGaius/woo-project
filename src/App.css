@@ -82,6 +82,16 @@
   height: 100%;
   overflow: auto;
   display: none;
+  animation: fadein 0.1s linear;
+}
+
+@keyframes fadein {
+  0%{
+    opacity: 0%;
+  }
+  100%{
+    opacity: 100%;
+  }
 }
 
 .modalWrapper {
@@ -114,12 +124,16 @@
 }
 
 .modalContent input{
-  background-color: rgb(228, 228, 228);
+  background-color: rgb(238, 238, 238);
   border-radius: 5px;
-  height: 3vh;
+  height: 40px;
   border: 0;
   padding: 1% 2%;
-  margin-bottom: 0.5vh;
+  margin-bottom: 1vh;
+}
+
+.modalContent input:focus {
+  border: 1px solid green;
 }
 
 .modalContent button{
@@ -128,7 +142,7 @@
   font-weight: 500;
   background-color: rgb(3, 160, 11);
   border-radius: 5px;
-  height: 3vh;
+  height: 40px;
   border: 0;
   padding: 1% 2%;
 }
@@ -147,4 +161,36 @@
 .closeButton:hover {
   color: black;
   cursor: pointer;
+}
+
+.messageContainer {
+  margin-top: 1.5vh;
+  max-height: 75vh;
+  overflow: auto;
+}
+
+.messageContainer::-webkit-scrollbar {
+  width: 0px;
+}
+
+.wooMessage {
+  background-color: rgb(255, 196, 0);
+  border-radius: 5px;
+  margin-bottom: 16px;
+  padding: 8px;
+  font-size: 0.9rem;
+}
+
+.wooMessage button {
+  cursor: pointer;
+  margin-top: 1vh;
+  padding: 6px;
+  border: 0;
+  border-radius: 5px;
+  background-color: rgb(255, 255, 255);
+  font-weight: 700;
+}
+
+.wooMessage button:hover {
+  outline: 1px solid #000;
 }
