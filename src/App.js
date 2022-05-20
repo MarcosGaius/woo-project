@@ -8,8 +8,70 @@ export default function App() {
 
   const [currentAccount, setCurrentAccount] = useState("");
   const [allWoo, setAllWoo] = useState([]);
-  const contractAddress = "0x64cf7F997Fd0eDda64bBb30c8a8Bc0461923FC59";
+  const contractAddress = "0x0BF75065BeE34555415eBC073c5fb706d03463b4";
   const contractABI = abi.abi;
+
+  const formatDate = (timestamp) => {
+    const monthArr = ['Janeiro',
+      'Fevereiro',
+      'Março',
+      'Abril',
+      'Maio',
+      'Junho',
+      'Julho',
+      'Agosto',
+      'Setembro',
+      'Outubro',
+      'Novembro',
+      'Dezembro'];
+
+      const dayArr = [ 'Domingo',
+      'Segunda-Feira',
+      'Terça-Feira',
+      'Quarta-Feira',
+      'Quinta-Feira',
+      'Sexta-Feira',
+      'Sábado'];
+
+      let date = new Date(timestamp);
+      let dia = date.getDate();
+      let diaSemana = dayArr[date.getDay()];
+      let mes = monthArr[date.getMonth()];
+      let ano = date.getFullYear();
+      let horas = date.getHours();
+      let min = date.getMinutes();
+      let seg = date.getSeconds();
+
+
+      return `Dia ${dia} de ${mes} de ${ano} às ${horas}:${min}:${seg} | ${diaSemana}`
+  };
+
+  const showModal = (errorStr) => {
+    let modal = document.getElementById('messageModal');
+    modal.style.display = "flex";
+    if(errorStr){
+
+    }
+  }
+
+  const closeModal = () => {
+    let modal = document.getElementById('messageModal');
+    modal.style.display = "none";
+  }
+
+  const showPopup = (message) => {
+    let popup = document.querySelector(".popupModal");
+    popup.style.display = "flex";
+    if(message){
+      let popupMessage = document.getElementById("error-message");
+      popupMessage.innerText = message;
+    }
+  }
+  
+  const closePopup = () => {
+    let popup = document.querySelector(".popupModal");
+    popup.style.display = "none";
+  }
 
   const checkWalletConnected = async () => {
     try {
@@ -49,6 +111,8 @@ export default function App() {
         return;
       }
 
+      document.querySelector(".errorContainer").style.display = "none";
+
       const dataContainer = document.querySelector(".dataContainer");
       console.log(dataContainer);
 
@@ -66,11 +130,32 @@ export default function App() {
       progContainer.remove();
       document.getElementById("metaCon").remove();
       getAllWoo();
-      setConnected(accounts[0]);
     }
     catch(error){
       console.log(error);
       document.querySelector(".progressContainer").remove();
+    }
+  }
+
+  const getAllWooBack = async (id) => {
+    try {
+      const { ethereum } = window;
+      if(ethereum){
+        const provider = new ethers.providers.Web3Provider(ethereum);
+        const signer = provider.getSigner();
+        const wooPortalContract = new ethers.Contract(contractAddress, contractABI, signer);
+
+        const woosBack = await wooPortalContract.getAllWooBack(id);
+        
+        console.log("Woos Back: ", woosBack.toNumber());
+        return woosBack.toNumber();
+      }
+      else {
+        console.log("O objeto ethereum não existe!");
+      }
+    }
+    catch(error){
+      console.log(error);
     }
   }
 
@@ -85,13 +170,16 @@ export default function App() {
         const woos = await wooPortalContract.getAllWoo();
         const treatedWoos = [];
 
-        woos.forEach((arrElem) => {
-            treatedWoos.push({
-              address: arrElem.waver,
-              timestamp: new Date(arrElem.timestamp * 1000),
-              message: arrElem.message
-            });
-        });
+        for(const wooElem of woos){
+          const wooback = await getAllWooBack(wooElem.id);
+          treatedWoos.push({
+            id: wooElem.id,
+            address: wooElem.waver,
+            timestamp: formatDate(wooElem.timestamp * 1000),
+            message: wooElem.message,
+            wooback: wooback
+          });
+        }
 
         setAllWoo(treatedWoos);
         console.log(treatedWoos);
@@ -106,16 +194,6 @@ export default function App() {
     }
   }
 
-  const showModal = () => {
-    let modal = document.getElementById('messageModal');
-    modal.style.display = "flex";
-  }
-
-  const closeModal = () => {
-    let modal = document.getElementById('messageModal');
-    modal.style.display = "none";
-  }
-
   const woo = async () => {
     try {
       const {ethereum} = window;
@@ -126,6 +204,8 @@ export default function App() {
         const wooPortalContract = new ethers.Contract(contractAddress, contractABI, signer);
 
         const messageInput = await document.getElementById('message-input').value
+        const loadingContainer = document.querySelector('.loadContainer');
+        const loadingText = document.querySelector('.loadingText');
 
         let wooCount = await wooPortalContract.getTotalWoo();
         console.log("Número de Woo's: ", wooCount.toNumber());
@@ -133,13 +213,15 @@ export default function App() {
         const wooTxn = await wooPortalContract.woo(messageInput, {gasLimit: 300000});
         console.log("Minerando...", wooTxn.hash);
 
+        loadingContainer.style.display = "flex";
+        loadingText.innerText = "Minerando...";
+
         await wooTxn.wait();
         console.log("Minerado -- ", wooTxn.hash);
 
         wooCount = await wooPortalContract.getTotalWoo();
         console.log("Número de Woo's: ", wooCount.toNumber());
         
-        document.getElementById('messageModal').style.display = "none";
         getAllWoo();
       }
       else {
@@ -148,8 +230,36 @@ export default function App() {
 
     }
     catch(error){
-      console.log(error);
+      if(error.receipt.status == 0){
+        showPopup("Você deve esperar 10 minutos para enviar outro Woo.")
+      }
+      else{
+        throw error;
+      }
     }
+  }
+  
+  const wooBack = async (id) => {
+    try {
+      const {ethereum} = window;
+
+      if(ethereum){
+        const provider = new ethers.providers.Web3Provider(ethereum);
+        const signer = provider.getSigner();
+        const wooPortalContract = new ethers.Contract(contractAddress, contractABI, signer);
+
+        const wooBackTxn = await wooPortalContract.wooBack(id);
+        console.log("Minerando...", wooBackTxn.hash);
+
+        await wooBackTxn.wait();
+        console.log("Minerado --", wooBackTxn.hash);
+        getAllWoo();
+      }
+    }
+    catch(error){
+      console.log("Erro no wooBack ", error);
+      showPopup(error.error.message);
+    }    
   }
 
   useEffect(() => {
@@ -157,14 +267,16 @@ export default function App() {
     
     let wooPortalContract;
  
-    const onNewWoo = (sender, timestamp, message) => {
-      console.log("NovoWoo", sender, timestamp, message);
-      setAllWoo(prevState => [
+    const onNewWoo = (id, sender, timestamp, message, woobacks) => {
+      console.log("newWave", id, sender, timestamp, message, woobacks);
+      setAllWoo (prevState => [
         ...prevState,
         {
+          id: id,
           address: sender,
-          timestamp: new Date(timestamp * 1000),
+          timestamp: formatDate(timestamp * 1000), //new Date(timestamp * 1000),
           message: message,
+          wooback: woobacks
         },
       ]);
     };
@@ -174,18 +286,22 @@ export default function App() {
       const signer = provider.getSigner();
 
       wooPortalContract = new ethers.Contract(contractAddress, contractABI, signer);
-      wooPortalContract.on("NovoWoo", onNewWoo);
+      wooPortalContract.on("newWave", onNewWoo);
     }
 
     return () => {
       if(wooPortalContract){
-        wooPortalContract.off("NovoWoo", onNewWoo);
+        wooPortalContract.off("newWave", onNewWoo);
       }
     }
   }, []);
 
   return (
     <div className="mainContainer">
+      <div className="headerContainer">
+        <div>Início</div>
+        <div>Sobre</div>
+      </div>
 
       <div className="dataContainer">
         <div className="header">
@@ -212,20 +328,45 @@ export default function App() {
               <p>Insira sua mensagem abaixo:
                 <span className="closeButton" onClick={closeModal}>&times;</span>
               </p>
+              <div className="loadContainer">
+                <div className="loadingButton"></div>
+                <div className="loadingText"></div>
+              </div>
               <input type="text" id="message-input" name="message-input" placeholder="Um link, uma homenagem, uma mensagem?"></input>
               <button onClick={woo}>Enviar</button>
             </div>
           </div>
         </div>
 
+        <div className="popupModal">
+          <div className="popupWrapper">
+            <div className="popupContent">
+              <div className="popupHeader">
+                <p>ERRO</p>
+                <span className="closeButton" onClick={closePopup}>&times;</span>
+              </div>
+              <div className="popupMessage">
+                <p id="error-message">Erro padrão.</p>
+              </div>
+            </div>
+          </div>
+        </div>
+        
+        {/* <div className="errorContainer">
+          ERRO:
+          <p id="error-message">Cheque se sua carteira está conectada!</p>
+        </div> */}
+
         <div className="messageContainer">
           {allWoo.map((woo, i) => {
             return (
-              <div key={i} class="wooMessage">
+              <div key={i} className="wooMessage">
+                <div><strong>ID:</strong> {woo.id.toNumber()}</div>
                 <div><strong>Endereço:</strong> {woo.address}</div>
                 <div><strong>Data/Horário:</strong> {woo.timestamp.toString()}</div>
                 <div><strong>Mensagem:</strong> {woo.message}</div>
-                <button key={i}>Woo Back</button>
+                <button onClick={() => wooBack(woo.id.toNumber())}>Woo Back</button>
+                <span>Quantidade de Woo Back: <span>{woo.wooback}</span></span>
               </div>
             )
           })};

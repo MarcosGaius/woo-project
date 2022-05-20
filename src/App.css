@@ -1,7 +1,7 @@
 @import url('https://fonts.googleapis.com/css2?family=Roboto:ital,wght@0,100;0,300;0,400;0,500;0,700;0,900;1,100;1,300;1,400;1,500;1,700;1,900&display=swap');
 @import url('https://fonts.googleapis.com/css2?family=Oswald:wght@200;300;400;500;600;700&display=swap');
 
-.body {
+body {
   font-family: 'Roboto', sans-serif;
 }
 
@@ -112,6 +112,28 @@
   background-color: #fefefe;
 }
 
+.loadContainer {
+  display: none;
+  justify-content: center;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 10px;
+}
+
+.loadingButton {
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  border: 2px solid #ccc;
+  border-top-color: rgb(32, 32, 32);
+  animation: spinner 1s linear infinite;
+}
+
+@keyframes spinner {
+  to {transform: rotate(360deg);}
+}
+ 
+
 .modalContent p {
   display: flex;
   align-items: center;
@@ -133,7 +155,7 @@
 }
 
 .modalContent input:focus {
-  border: 1px solid green;
+  outline: none;
 }
 
 .modalContent button{
@@ -163,6 +185,25 @@
   cursor: pointer;
 }
 
+.errorContainer {
+  color: rgb(255, 196, 0);
+  margin-top: 1.5vh;
+  display: none;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  font-weight: bold;
+  width: 100%;
+}
+
+.errorContainer p {
+  margin: 0;
+  color: white;
+  font-weight: normal;
+  text-align: center;
+  max-width: 100%;
+}
+
 .messageContainer {
   margin-top: 1.5vh;
   max-height: 75vh;
@@ -182,15 +223,79 @@
 }
 
 .wooMessage button {
+  color: white;
   cursor: pointer;
   margin-top: 1vh;
   padding: 6px;
   border: 0;
   border-radius: 5px;
-  background-color: rgb(255, 255, 255);
-  font-weight: 700;
+  background-color: rgb(0, 0, 0);
+  font-weight: 500;
 }
 
 .wooMessage button:hover {
-  outline: 1px solid #000;
+  background-color: rgb(255, 255, 255);
+  color: black;
+}
+
+.wooMessage span {
+  margin-left: 10px;
+  font-weight: bold;
+}
+
+.wooMessage span span{
+  margin: 0;
+  font-weight: normal;
+}
+
+.popupModal {
+  background-color: rgba(0,0,0,0.4);
+  position: fixed;
+  z-index: 1;
+  left: 0;
+  top: 0;
+  width: 100vw;
+  height: 100vh;
+  overflow: auto;
+  display: none;
+  animation: fadein 0.1s linear;
+}
+
+.popupWrapper {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 100%;
+  width: 100%;
+}
+
+.popupContent {
+  display: flex;
+  flex-direction: column;
+  margin: auto;
+  width: 40%;
+  padding: 20px;
+  border-radius: 10px;
+  box-shadow: 0px 0px 20px 1px rgba(255, 255, 255, 0.616);
+  background-color: #fefefe;
+}
+
+.popupContent p {
+  margin: 0;
+}
+
+.popupMessage {
+  width: 100%;
+  overflow: auto;
+}
+
+.popupHeader {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  font-weight: 700;
+}
+
+#error-message {
+  margin: 5px 0;
 }
