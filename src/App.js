@@ -91,7 +91,6 @@ export default function App() {
         const account = accounts[0];
         console.log("Encontrada a conta autorizada: ", account);
         setCurrentAccount(account);
-        getAllWoo();
       }
       else {
         console.log("Nenhuma conta autorizada foi encontrada!")
@@ -216,11 +215,12 @@ export default function App() {
 
         await wooTxn.wait();
         console.log("Minerado -- ", wooTxn.hash);
+        loadingContainer.style.display = "none";
 
         wooCount = await wooPortalContract.getTotalWoo();
         console.log("Número de Woo's: ", wooCount.toNumber());
         
-        getAllWoo();
+        //getAllWoo();
       }
       else {
         console.log("Objeto Ethereum não encotrado.");
@@ -228,10 +228,15 @@ export default function App() {
 
     }
     catch(error){
-      if(error.receipt.status == 0){
-        showPopup("Você deve esperar 10 minutos para enviar outro Woo.")
+      closeModal();
+      if(error.message){
+        showPopup(error.message);
       }
-      else{
+      if(error.receipt.status == 0){
+          showPopup("Você deve esperar 10 minutos para enviar outro Woo.")
+          return;
+      }
+      else {
         throw error;
       }
     }
@@ -279,6 +284,8 @@ export default function App() {
       ]);
     };
 
+    getAllWoo();
+
     if(window.ethereum){
       const provider = new ethers.providers.Web3Provider(window.ethereum);
       const signer = provider.getSigner();
@@ -297,9 +304,13 @@ export default function App() {
   return (
     <div className="mainContainer">
       <div className="headerContainer">
-        <div className="headerLogo">Woo Portal</div>
-        <div>Início</div>
-        <div>Sobre</div>
+        <div className="headerLogo">💫 Woo Portal</div>
+        <div className="headerOptions">
+          <a href="https://metamask.io" target="_blank">Metamask</a>
+          <a href="https://rinkebyfaucet.com" target="_blank">Faucet (ETH na Rinkeby)</a>
+          {/* <div>Início</div>
+          <div>Sobre</div> */}
+        </div>
       </div>
 
       <div className="dataWrapper">
@@ -309,7 +320,9 @@ export default function App() {
           </div>
 
           <div className="bio">
-          Eu sou o Marcos ou Gaius, tanto faz... Conecta aí sua carteira Ethereum Wallet e faz o Woo!
+          Basicamente, você consegue fazer o Woo e responder com o Woo Back por aqui. Masss, além disso, você consegue enviar uma mensagem no seu Woo! Então aproveita e deixa sua mensagem marcada na Blockchain aí 😎
+          <br></br><br></br>
+          Não esquece de conectar sua Metamask e estar na rede Rinkeby (Rede de testes) 👀
           </div>
 
           <button className="wooButton" onClick={showModal}>
@@ -350,26 +363,21 @@ export default function App() {
                 </div>
               </div>
             </div>
-          </div>
-          
-          {/* <div className="errorContainer">
-            ERRO:
-            <p id="error-message">Cheque se sua carteira está conectada!</p>
-          </div> */}
+          </div>      
 
           <div className="messageContainer">
-            {allWoo.map((woo, i) => {
+            {allWoo.slice(0).reverse().map((woo, i) => {
               return (
                 <div key={i} className="wooMessage">
                   <div><strong>ID:</strong> {woo.id.toNumber()}</div>
                   <div><strong>Endereço:</strong> {woo.address}</div>
                   <div><strong>Data/Horário:</strong> {woo.timestamp.toString()}</div>
                   <div><strong>Mensagem:</strong> {woo.message}</div>
-                  <button onClick={() => wooBack(woo.id.toNumber())}>Woo Back</button>
+                  <button onClick={() => wooBack(woo.id.toNumber())}>🎉 Woo Back</button>
                   <span>Quantidade de Woo Back: <span>{woo.wooback}</span></span>
                 </div>
               )
-            })};
+            })}
           </div>
         </div>
       </div>
