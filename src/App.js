@@ -276,7 +276,7 @@ export default function App() {
           address: sender,
           timestamp: formatDate(timestamp * 1000), //new Date(timestamp * 1000),
           message: message,
-          wooback: woobacks
+          wooback: woobacks.toNumber();
         },
       ]);
     };
