@@ -111,8 +111,6 @@ export default function App() {
         return;
       }
 
-      document.querySelector(".errorContainer").style.display = "none";
-
       const dataContainer = document.querySelector(".dataContainer");
       console.log(dataContainer);
 
@@ -299,77 +297,80 @@ export default function App() {
   return (
     <div className="mainContainer">
       <div className="headerContainer">
+        <div className="headerLogo">Woo Portal</div>
         <div>Início</div>
         <div>Sobre</div>
       </div>
 
-      <div className="dataContainer">
-        <div className="header">
-        💫 Fala ae, pessoal!
-        </div>
+      <div className="dataWrapper">
+        <div className="dataContainer">
+          <div className="header">
+          💫 Fala ae, pessoal!
+          </div>
 
-        <div className="bio">
-        Eu sou o Marcos ou Gaius, tanto faz... Conecta aí sua carteira Ethereum Wallet e faz o Woo!
-        </div>
+          <div className="bio">
+          Eu sou o Marcos ou Gaius, tanto faz... Conecta aí sua carteira Ethereum Wallet e faz o Woo!
+          </div>
 
-        <button className="wooButton" onClick={showModal}>
-        Woooooooooo 🎉
-        </button>
-
-        {!currentAccount && (
-          <button className="wooButton" id="metaCon" onClick={connectWallet}>
-            Conectar carteira 🦊
+          <button className="wooButton" onClick={showModal}>
+          Woooooooooo 🎉
           </button>
-        )}
 
-        <div className="messageModal" id="messageModal">
-          <div className="modalWrapper">
-            <div className="modalContent">
-              <p>Insira sua mensagem abaixo:
-                <span className="closeButton" onClick={closeModal}>&times;</span>
-              </p>
-              <div className="loadContainer">
-                <div className="loadingButton"></div>
-                <div className="loadingText"></div>
-              </div>
-              <input type="text" id="message-input" name="message-input" placeholder="Um link, uma homenagem, uma mensagem?"></input>
-              <button onClick={woo}>Enviar</button>
-            </div>
-          </div>
-        </div>
+          {!currentAccount && (
+            <button className="wooButton" id="metaCon" onClick={connectWallet}>
+              Conectar carteira 🦊
+            </button>
+          )}
 
-        <div className="popupModal">
-          <div className="popupWrapper">
-            <div className="popupContent">
-              <div className="popupHeader">
-                <p>ERRO</p>
-                <span className="closeButton" onClick={closePopup}>&times;</span>
-              </div>
-              <div className="popupMessage">
-                <p id="error-message">Erro padrão.</p>
+          <div className="messageModal" id="messageModal">
+            <div className="modalWrapper">
+              <div className="modalContent">
+                <p>Insira sua mensagem abaixo:
+                  <span className="closeButton" onClick={closeModal}>&times;</span>
+                </p>
+                <div className="loadContainer">
+                  <div className="loadingButton"></div>
+                  <div className="loadingText"></div>
+                </div>
+                <input type="text" id="message-input" name="message-input" placeholder="Um link, uma homenagem, uma mensagem?"></input>
+                <button onClick={woo}>Enviar</button>
               </div>
             </div>
           </div>
-        </div>
-        
-        {/* <div className="errorContainer">
-          ERRO:
-          <p id="error-message">Cheque se sua carteira está conectada!</p>
-        </div> */}
 
-        <div className="messageContainer">
-          {allWoo.map((woo, i) => {
-            return (
-              <div key={i} className="wooMessage">
-                <div><strong>ID:</strong> {woo.id.toNumber()}</div>
-                <div><strong>Endereço:</strong> {woo.address}</div>
-                <div><strong>Data/Horário:</strong> {woo.timestamp.toString()}</div>
-                <div><strong>Mensagem:</strong> {woo.message}</div>
-                <button onClick={() => wooBack(woo.id.toNumber())}>Woo Back</button>
-                <span>Quantidade de Woo Back: <span>{woo.wooback}</span></span>
+          <div className="popupModal">
+            <div className="popupWrapper">
+              <div className="popupContent">
+                <div className="popupHeader">
+                  <p>ERRO</p>
+                  <span className="closeButton" onClick={closePopup}>&times;</span>
+                </div>
+                <div className="popupMessage">
+                  <p id="error-message">Erro padrão.</p>
+                </div>
               </div>
-            )
-          })};
+            </div>
+          </div>
+          
+          {/* <div className="errorContainer">
+            ERRO:
+            <p id="error-message">Cheque se sua carteira está conectada!</p>
+          </div> */}
+
+          <div className="messageContainer">
+            {allWoo.map((woo, i) => {
+              return (
+                <div key={i} className="wooMessage">
+                  <div><strong>ID:</strong> {woo.id.toNumber()}</div>
+                  <div><strong>Endereço:</strong> {woo.address}</div>
+                  <div><strong>Data/Horário:</strong> {woo.timestamp.toString()}</div>
+                  <div><strong>Mensagem:</strong> {woo.message}</div>
+                  <button onClick={() => wooBack(woo.id.toNumber())}>Woo Back</button>
+                  <span>Quantidade de Woo Back: <span>{woo.wooback}</span></span>
+                </div>
+              )
+            })};
+          </div>
         </div>
       </div>
     </div>
